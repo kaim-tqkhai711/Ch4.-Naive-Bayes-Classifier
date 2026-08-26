@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>NB Sentiment Demo</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 720px; margin: 40px auto; color: #222; }
+        h1 { font-size: 1.4rem; margin-bottom: 4px; }
+        .subtitle { color: #666; margin-bottom: 24px; }
+        form { display: flex; gap: 8px; margin-bottom: 8px; }
+        input[type=text] { flex: 1; padding: 8px; font-size: 1rem; }
+        button { padding: 8px 18px; font-size: 1rem; cursor: pointer; }
+        .demos a { margin-right: 12px; font-size: 0.85rem; }
+        .badge { display: inline-block; padding: 6px 16px; border-radius: 20px; font-weight: bold; margin: 16px 0; }
+        .positive { background: #e6f7ee; color: #0a7a3d; border: 1px solid #0a7a3d; }
+        .negative { background: #fdecea; color: #c0392b; border: 1px solid #c0392b; }
+        table { border-collapse: collapse; width: 100%; margin-top: 8px; }
+        th, td { border: 1px solid #ddd; padding: 6px 10px; text-align: left; font-size: 0.9rem; }
+        section { margin-top: 28px; }
+        .cols { display: flex; gap: 32px; }
+        .cols > div { flex: 1; }
+    </style>
+</head>
+<body>
+    <h1>Movie Review Sentiment (Naive Bayes)</h1>
+    <p class="subtitle">CountVectorizer + MultinomialNB · toy dataset ({{ stats.total_samples }} reviews)</p>
+
+    <form method="POST">
+        <input type="text" name="review" placeholder="Enter a movie review" value="{{ review }}" required>
+        <button type="submit">Predict</button>
+    </form>
+    <div class="demos">
+        {% for label, text in demo_samples.items() %}
+            <a href="#" onclick="document.querySelector('input[name=review]').value='{{ text }}'; return false;">{{ label }}</a>
+        {% endfor %}
+    </div>
+
+    {% if result %}
+        <span class="badge {{ 'positive' if result == 'Positive' else 'negative' }}">{{ result }}</span>
+        <p>P(Negative) = {{ '%.3f' % proba[0] }} &nbsp;·&nbsp; P(Positive) = {{ '%.3f' % proba[1] }}</p>
+    {% endif %}
+
+    <section class="cols">
+        <div>
+            <h3>Top indicative words</h3>
+            <table>
+                <tr><th>Positive</th><th>Negative</th></tr>
+                {% for i in range(top_words.positive | length) %}
+                <tr>
+                    <td>{{ top_words.positive[i] }}</td>
+                    <td>{{ top_words.negative[i] }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+        <div>
+            <h3>Model fit (training set)</h3>
+            <table>
+                <tr><th>Accuracy</th><td>{{ '%.2f' % metrics.accuracy }}</td></tr>
+                <tr><th>Precision</th><td>{{ '%.2f' % metrics.precision }}</td></tr>
+                <tr><th>Recall</th><td>{{ '%.2f' % metrics.recall }}</td></tr>
+                <tr><th>F1-score</th><td>{{ '%.2f' % metrics.f1 }}</td></tr>
+            </table>
+        </div>
+    </section>
+
+    <section>
+        <h3>Word frequency (top 10)</h3>
+        <table>
+            <tr><th>Word</th><th>Count</th></tr>
+            {% for word, count in frequency %}
+            <tr><td>{{ word }}</td><td>{{ count }}</td></tr>
+            {% endfor %}
+        </table>
+    </section>
+</body>
+</html>
