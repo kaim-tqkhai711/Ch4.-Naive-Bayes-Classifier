@@ -5,20 +5,24 @@ A Flask application for exploring Multinomial Naive Bayes text classification on
 ## Features
 
 - Enter a movie review and classify it as Positive or Negative.
-- Quick-fill Positive/Negative example links.
-- See the predicted class probabilities (P(Negative) / P(Positive)).
-- Inspect the most indicative words per class (highest log-probability difference).
-- View model fit metrics: accuracy, precision, recall, F1-score.
-- View raw word frequency counts across the training reviews.
+- **Explainability (XAI):** Color-coded word/phrase attribution highlighting which tokens pushed the prediction toward Positive or Negative.
+- **Model Comparison:** Switch between `MultinomialNB`, `BernoulliNB`, and `ComplementNB`.
+- **Feature Extraction:** Switch between `CountVectorizer` and `TF-IDF`, with Unigram or Unigram + Bigram support.
+- **Interactive Visualizations:** Dual-color probability bar, confusion matrix heatmap (Chart.js), and word cloud.
+- **Dataset Explorer:** Browse, filter, search all 2,000 reviews, add custom reviews, and retrain on the fly.
+- Inspect top indicative words per class and test-set performance metrics (Accuracy, Precision, Recall, F1).
+
 
 ## Dataset
 
 | Property | Value |
 | --- | --- |
-| Samples | 8 movie reviews |
+| Samples | 2,000 movie reviews (1,000 positive, 1,000 negative) |
 | Classes | Positive (1), Negative (0) |
-| Source | Hardcoded in `utils/data_loader.py` |
-| Vectorization | `CountVectorizer` (bag-of-words) |
+| Split | 80% Train (1,600 reviews) / 20% Test (400 reviews) |
+| Source | NLTK `movie_reviews` corpus (cached to `data/movie_reviews.csv`) |
+| Vectorization | `CountVectorizer` (`stop_words='english'`, `min_df=5`) |
+| Test Accuracy | ~81 - 82% |
 
 ## Run locally
 
@@ -54,10 +58,19 @@ Open `http://localhost:5000` in your browser.
 ```text
 NB-demo/
 ├── app.py
+├── app_state.py
 ├── requirements.txt
+├── data/
+│   └── movie_reviews.csv
 ├── models/
 │   ├── __init__.py
 │   └── nb_model.py
+├── static/
+│   ├── app.js
+│   └── style.css
+├── templates/
+│   ├── dataset.html
+│   └── index.html
 ├── utils/
 │   ├── __init__.py
 │   ├── data_loader.py
@@ -67,9 +80,10 @@ NB-demo/
     └── text_visualization.py
 ```
 
-## Data and reproducibility
 
-`utils/data_loader.py` hardcodes 8 short English movie reviews (4 positive, 4 negative) so the demo trains instantly with no external files. The dataset is intentionally tiny for teaching purposes; `utils/metrics.py` reports fit on this same training set rather than a held-out test split, since 8 samples are too few to split meaningfully.
+## Data and reproducibility
+ 
+`utils/data_loader.py` loads the standard NLTK `movie_reviews` dataset containing 2,000 full-text English reviews (1,000 positive, 1,000 negative). The data is split into 1,600 training reviews and 400 test reviews (`test_size=0.2, random_state=42`). A local cache file `data/movie_reviews.csv` is created on first load to allow instant app startup (<0.1s). `utils/metrics.py` reports performance evaluated strictly on the 400 held-out test samples.
 
 ## Learning goals
 

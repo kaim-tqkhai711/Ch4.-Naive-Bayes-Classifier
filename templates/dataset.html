@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Dataset Explorer</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <nav class="top-nav">
+        <a href="{{ url_for('index') }}">Predict</a>
+        <a href="{{ url_for('dataset') }}">Dataset Explorer</a>
+    </nav>
+
+    <h1>Dataset Explorer</h1>
+    <p class="subtitle">{{ stats.total_samples }} reviews ({{ stats.positive }} positive / {{ stats.negative }} negative)</p>
+
+    {% if added %}
+    <div class="banner-success">Đã thêm review mới và huấn luyện lại model thành công.</div>
+    {% endif %}
+
+    <form class="filters" method="GET" action="{{ url_for('dataset') }}">
+        <select name="label">
+            <option value="all" {{ 'selected' if label_filter == 'all' }}>Tất cả</option>
+            <option value="pos" {{ 'selected' if label_filter == 'pos' }}>Positive</option>
+            <option value="neg" {{ 'selected' if label_filter == 'neg' }}>Negative</option>
+        </select>
+        <input type="text" name="q" placeholder="Tìm theo từ khóa..." value="{{ query }}">
+        <button type="submit">Lọc / Tìm kiếm</button>
+    </form>
+
+    <p>Tìm thấy {{ total }} review (trang {{ page }}/{{ total_pages }})</p>
+
+    <table>
+        <tr><th>#</th><th class="snippet">Review</th><th>Nhãn</th></tr>
+        {% for r in reviews %}
+        <tr>
+            <td>{{ r.index }}</td>
+            <td class="snippet">{{ r.snippet }}</td>
+            <td><span class="badge {{ 'positive' if r.label == 1 else 'negative' }}">{{ 'Positive' if r.label == 1 else 'Negative' }}</span></td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <div class="pagination">
+        {% if page > 1 %}
+            <a href="{{ url_for('dataset', label=label_filter, q=query, page=page-1) }}">&laquo; Trước</a>
+        {% endif %}
+        <span>Trang {{ page }} / {{ total_pages }}</span>
+        {% if page < total_pages %}
+            <a href="{{ url_for('dataset', label=label_filter, q=query, page=page+1) }}">Sau &raquo;</a>
+        {% endif %}
+    </div>
+
+    <div class="add-review">
+        <h3>Thêm review mới &amp; Retrain</h3>
+        <form method="POST" action="{{ url_for('dataset_add') }}">
+            <textarea name="review" rows="3" placeholder="Nhập nội dung review..." required></textarea>
+            <div style="margin-top: 8px; display: flex; gap: 10px; align-items: center;">
+                <select name="label" required>
+                    <option value="1">Positive</option>
+                    <option value="0">Negative</option>
+                </select>
+                <button type="submit">Thêm &amp; Retrain lại</button>
+            </div>
+        </form>
+    </div>
+</body>
+</html>

@@ -9,9 +9,8 @@ from sklearn.metrics import (
 
 def evaluate_model(model, vectorizer, texts, labels):
     """
-    Evaluate the fitted model on the given texts/labels.
-    The toy dataset is too small to split, so this reports training-set fit
-    (i.e. how well the model has memorized the demo reviews).
+    Evaluate the fitted model on the given evaluation (test) texts and labels.
+    Returns standard classification metrics (accuracy, precision, recall, f1).
     """
     X = vectorizer.transform(texts)
     preds = model.predict(X)
